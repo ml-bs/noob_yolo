@@ -1,8 +1,6 @@
 import tensorflow as tf
 import os
 from random import random
-import numpy as np
-from skimage.util import random_noise
 
 def resize(url, out_dir, out_name):
     image = tf.io.read_file(url)
@@ -32,7 +30,7 @@ def augment(url, out_dir, out_name):
     out = os.path.join(out_dir, out_name + "_bright.jpeg")
     tf.io.write_file(out, bright_image)
 
-    contrast_image = tf.image.adjust_contrast(image, random() * 0.7)
+    contrast_image = tf.image.adjust_contrast(image, random() * 2)
     contrast_image = tf.image.convert_image_dtype(contrast_image, tf.uint8)
     contrast_image = tf.io.encode_jpeg(contrast_image, name = out_name)
     out = os.path.join(out_dir, out_name + "_contrast.jpeg")
@@ -44,16 +42,18 @@ def augment(url, out_dir, out_name):
     out = os.path.join(out_dir, out_name + "_hue.jpeg")
     tf.io.write_file(out, hue_image)
 
-    saturated_image = tf.image.adjust_saturation(image, random() * 7)
+    saturated_image = tf.image.adjust_saturation(image, random() * 8)
     saturated_image = tf.image.convert_image_dtype(saturated_image, tf.uint8)
     saturated_image = tf.io.encode_jpeg(saturated_image, name = out_name)
     out = os.path.join(out_dir, out_name + "_saturated.jpeg")
     tf.io.write_file(out, saturated_image)
 
-#   noise_image = random_noise(image, mode = "gaussian", var = random() * 0.03)
-#   image = tf.image.convert_image_dtype(image, tf.uint8)
-#    out = os.path.join(out_dir, out_name + "_noise.jpeg")
-#    tf.io.write_file(out, image)
+    noise = tf.random.normal(shape = tf.shape(image), mean = 0.0, stddev = 0.2, dtype = tf.float32)
+    noise_image = image + noise
+    noise_image = tf.image.convert_image_dtype(noise_image, tf.uint8)
+    noise_image = tf.io.encode_jpeg(noise_image, name = out_name)
+    out = os.path.join(out_dir, out_name + "_noise.jpeg")
+    tf.io.write_file(out, noise_image)
 
 url = "../data/rowdy/2238.jpeg"
 augment(url, "./", "temp")
