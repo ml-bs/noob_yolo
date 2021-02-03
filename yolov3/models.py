@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
-from ..constants import constants
 from .utils import iou
+from misc.constants import constants
 
 smol_anchors = np.array([(), (), (), (), (), ()]) #decide on the anchor values
 
@@ -19,7 +19,7 @@ def DarknetConv(x, filters, kernel_size, strides = 1):
         padding = "valid"
 
     #Conv2D layer
-    x = tf.keras.layers.Conv2D(filters = anchors * (classes + 5), kernel_size = kernel_size, strides = strides, padding = padding, use_bias = False, kernel_regularizer = tf.keras.regularizers.L2(0.0005))(x)
+    x = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = strides, padding = padding, use_bias = False, kernel_regularizer = tf.keras.regularizers.L2(0.0005))(x)
 
     #apply batch normalization + leaky relu(activation)
     x = tf.keras.layers.BatchNormalization()(x)
