@@ -1,11 +1,19 @@
 import tensorflow as tf
+import numpy as np
 import os
 from random import random
 
-def resize(url, out_dir, out_name):
+def resize(url, out_dir, out_name, i):
     image = tf.io.read_file(url)
     image = tf.io.decode_image(image, dtype = tf.float32)
-    image = tf.image.resize_with_pad(image, 400, 400)
+    image = tf.image.resize_with_pad(image, 416, 416)
+
+    if i%7 == 0:
+        image = tf.image.rot90(image)
+    elif i%7 == 1:
+        image = tf.image.rot90(image, 2)
+    elif i%7 == 2:
+        image = tf.image.rot90(image, 3)
 
     image = tf.image.convert_image_dtype(image, tf.uint8)
     image = tf.io.encode_jpeg(image, name = out_name)
@@ -55,5 +63,52 @@ def augment(url, out_dir, out_name):
     out = os.path.join(out_dir, out_name + "_noise.jpeg")
     tf.io.write_file(out, noise_image)
 
-url = "../data/rowdy/2238.jpeg"
-augment(url, "./", "temp")
+source_dir = "../data/rowdy"
+
+target_dir = "../data/doggo_pics"
+
+#image prepping
+"""
+i = 0
+for filename in os.listdir(source_dir):
+    url = os.path.join(source_dir, filename)
+    resize(url, target_dir, str(i), i)
+    i += 1
+"""
+
+def process_image(image_url):
+    image = tf.io.read_file(image_url)
+    image = tf.io.decode_image(image, dtype = tf.float32)
+    return image
+
+def load_dataset():
+
+    images_dir = "../data/doggo_pics"
+    labels_dir = "../data/doggo_labels"
+
+    images = []
+    labels = []
+
+    for image_filename in os.listdir(images_dir):
+        image_url = os.path.join(images_dir, image_filename)
+        
+        label_filename = image_filename.replace(".jpeg", ".txt")
+        label_url = os.path.join(labels_dir, label_filename)
+        
+        label = open(label_url)
+        label = np.genfromtxt(label, delimiter = " ")
+        label = tf.cast(label, tf.float32)
+
+        print(label)
+
+        images.append(image_url)
+        labels.append(label)
+
+    dataset = tf.data.Dataset.from_tensor_slices((images, labels))
+    dataset = dataset.map(lambda x, y : (
+                process_image(x),
+                y
+                )
+            )
+
+    return dataset

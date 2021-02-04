@@ -4,7 +4,7 @@ import numpy as np
 from .utils import iou
 from misc.constants import constants
 
-smol_anchors = np.array([(), (), (), (), (), ()]) #decide on the anchor values
+smol_anchors = np.array([(12, 12), (24, 24), (50, 25), (80, 80), (200, 140), (300, 180)]) #decide on the anchor values
 
 smol_anchor_masks = np.array([[0, 1, 2], [3, 4, 5]]) #first term represents the smaller anchors
 

@@ -19,4 +19,4 @@ def iou(box_1, box_2):
 
     return intersection_area / (box_1_area + box_2_area - intersection_area)
 
-def draw_boxes():
+#def draw_boxes():
